@@ -1,1 +1,2 @@
 # RealNews-Vs-SatiricalNews
+The digital age has made it difficult to distinguish between genuine news and satirical content, leading to a decline in media literacy and trust. This project aims to create a machine learning model that can accurately differentiate between real news and satirical content, addressing the complexity of distinguishing between fact and satire, and undermining news sources' credibility and responsible journalism principles.

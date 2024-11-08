@@ -1,6 +1,4 @@
 import streamlit as st
-import cv2
-import pytesseract as pt
 import pickle
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -346,69 +344,7 @@ def page2():
         elif output[0]==1:
             st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Real News</h5>', unsafe_allow_html=True)
 
-def page3():
-    st.markdown('<h2 style="color: black; text-align: center; font-family: Georgia, serif;"><b>Use Image</b></h2>', unsafe_allow_html=True)
-    st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>1. Heading of article</b></p>', unsafe_allow_html=True)
-    st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>2. Content of article</b></p>', unsafe_allow_html=True)
-    st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>3. Whole article</b></p>', unsafe_allow_html=True)
-    st.write("\n")
-    st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Please enter option of your choice here</b></p>', unsafe_allow_html=True)
-    choice = st.number_input(" ",min_value=1,max_value=3,step=1)
-    st.write("\n")
-    st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Please upload an image in .jpg, .jpeg or .png format</b></p>', unsafe_allow_html=True)
-    uploaded_file = st.file_uploader(" ", type=["jpg", "jpeg", "png"])
-    st.write("\n")
-    if uploaded_file is not None:
-        st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Uploaded Image:</b></p>', unsafe_allow_html=True)
-        st.image(uploaded_file, width=200)
-        upload_dir = "uploads"
-        if not os.path.exists(upload_dir):
-            os.makedirs(upload_dir)
-        file_path = os.path.join(upload_dir, uploaded_file.name)
-        with open(file_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        image_path = os.path.join("uploads", uploaded_file.name)
-        image = cv2.imread(file_path)
-        textFromImage = pt.image_to_string(image)
-        textFromImage = str(textFromImage)
-        if choice==1:
-            st.markdown(f'<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Text extracted from image: <h6 style="color: black; text-align: justify; font-family: Georgia, serif;">{textFromImage}</h6></b></p>', unsafe_allow_html=True)
-            with open("tfidfHeading", 'rb') as file:
-                tfidf_model = pickle.load(file)
-            inputData = tfidf_model.transform([textFromImage])
-            with open("nbHeading", 'rb') as file:
-                loaded_model = pickle.load(file)
-            output=loaded_model.predict(inputData)
-            if output[0]==0:
-                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Satirical News</h5>', unsafe_allow_html=True)
-            elif output[0]==1:
-                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Real News</h5>', unsafe_allow_html=True)
-        elif choice==2:
-            st.markdown(f'<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Text extracted from image: <h6 style="color: black; text-align: justify; font-family: Georgia, serif;">{textFromImage}</h6></b></p>', unsafe_allow_html=True)
-            with open("tfidfText", 'rb') as file:
-                tfidf_model = pickle.load(file)
-            inputData = tfidf_model.transform([textFromImage])
-            with open("nbText", 'rb') as file:
-                loaded_model = pickle.load(file)
-            output=loaded_model.predict(inputData)
-            if output[0]==0:
-                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Satirical News</h5>', unsafe_allow_html=True)
-            elif output[0]==1:
-                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Real News</h5>', unsafe_allow_html=True)
-        else:
-            st.markdown(f'<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Text extracted from image: <h6 style="color: black; text-align: justify; font-family: Georgia, serif;">{textFromImage}</h6></b></p>', unsafe_allow_html=True)
-            with open("tfidfCombined", 'rb') as file:
-                tfidf_model = pickle.load(file)
-            inputData = tfidf_model.transform([textFromImage])
-            with open("knnCombined", 'rb') as file:
-                loaded_model = pickle.load(file)
-            output=loaded_model.predict(inputData)
-            if output[0]==0:
-                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Satirical News</h5>', unsafe_allow_html=True)
-            elif output[0]==1:
-                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Real News</h5>', unsafe_allow_html=True)
-
-PAGES = {"About Us...": page1, "Use Text": page2, "Use Image": page3}
+PAGES = {"About Us...": page1, "Use Text": page2}
 menu_selection = st.sidebar.selectbox('Go to', list(PAGES.keys()))
 page = PAGES[menu_selection]
 page()

@@ -1,2 +1,7 @@
 ### dependency
 streamlit
+cv
+pytessaract
+os
+pickle
+sklearn

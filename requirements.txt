@@ -1,7 +1,7 @@
 ### dependency
 streamlit
 opencv-python
-pytessaract
+pytesseract
+scikit-learn
 os
 pickle
-sklearn

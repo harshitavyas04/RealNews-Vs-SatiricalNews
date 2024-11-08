@@ -1,6 +1,6 @@
 ### dependency
 streamlit
-cv2
+OpenCV
 pytessaract
 os
 pickle

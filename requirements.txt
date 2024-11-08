@@ -3,5 +3,4 @@ streamlit
 opencv-python
 pytesseract
 scikit-learn
-os
-pickle
+

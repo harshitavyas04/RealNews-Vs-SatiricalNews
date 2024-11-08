@@ -1,6 +1,4 @@
 ### dependency
 streamlit
-opencv-python
-pytesseract
 scikit-learn
 

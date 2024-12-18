@@ -1,10 +1,10 @@
 import streamlit as st
+import cv2
+import pytesseract as pt
 import pickle
 import os
 from sklearn.feature_extraction.text import TfidfVectorizer
-
 tfidf = TfidfVectorizer()
-
 css = """
 <style>
 @keyframes move {
@@ -12,7 +12,6 @@ css = """
         transform: translate3d(0, 0, 1px) rotate(360deg);
     }
 }
-
 .background {
     position: fixed;
     width: 100vw;
@@ -22,7 +21,6 @@ css = """
     background: #fffce6;
     overflow: hidden;
 }
-
 .background span {
     width: 15vmin;
     height: 15vmin;
@@ -34,7 +32,6 @@ css = """
     animation-timing-function: linear;
     animation-iteration-count: infinite;
 }
-
 .background span:nth-child(0) {
     color: #e7f0f4;
     top: 56%;
@@ -217,7 +214,6 @@ css = """
 }
 </style>
 """
-
 html = """
 <div class="background">
    <span></span>
@@ -242,7 +238,6 @@ html = """
    <span></span>
 </div>
 """
-
 non_animated_css = """
 <style>
 [data-testid="stSidebar"] {
@@ -257,7 +252,6 @@ non_animated_css = """
 }
 </style>
 """
-
 header_css = """
 <style>
 [class="st-emotion-cache-1avcm0n ezrtsby2"] {
@@ -272,12 +266,10 @@ header_css = """
 }
 </style>
 """
-
 st.markdown(css, unsafe_allow_html=True)
 st.markdown(html, unsafe_allow_html=True)
 st.markdown(non_animated_css, unsafe_allow_html=True)
 st.markdown(header_css, unsafe_allow_html=True)
-
 def page1():
     st.markdown('<h2 style="color: black; text-align: center; font-family: Georgia, serif;"><b>Real vs Satirical News Detector</b></h2>', unsafe_allow_html=True)
     st.write("\n\n\n")
@@ -294,12 +286,18 @@ def page1():
     st.markdown('''<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>You can input either text of the article, or a screenshot of the article. It also has a choice over whether the user
     wants to upload the heading of the article, the body of the article, or the entire combined article. The model runs and gives
     output as either Satirical News or Real News.</b></p>''', unsafe_allow_html=True)
-
 def page2():
     st.markdown('<h2 style="color: black; text-align: center; font-family: Georgia, serif;"><b>Use Text</b></h2>', unsafe_allow_html=True)
     st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>1. Heading of article</b></p>', unsafe_allow_html=True)
     st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>2. Content of article</b></p>', unsafe_allow_html=True)
     st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>3. Whole article</b></p>', unsafe_allow_html=True)
+    
+    ### image trial
+
+
+    st.image("headline img.jpg", caption="Example Image")  # Insert an image
+   ###  trial endsss......
+   
     st.write("\n\n")
     st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Please enter option of your choice here</b></p>', unsafe_allow_html=True)
     choice = st.number_input(" ",min_value=1,max_value=3,step=1)
@@ -343,8 +341,68 @@ def page2():
             st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Satirical News</h5>', unsafe_allow_html=True)
         elif output[0]==1:
             st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Real News</h5>', unsafe_allow_html=True)
-
-PAGES = {"About Us...": page1, "Use Text": page2}
+def page3():
+    st.markdown('<h2 style="color: black; text-align: center; font-family: Georgia, serif;"><b>Use Image</b></h2>', unsafe_allow_html=True)
+    st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>1. Heading of article</b></p>', unsafe_allow_html=True)
+    st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>2. Content of article</b></p>', unsafe_allow_html=True)
+    st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>3. Whole article</b></p>', unsafe_allow_html=True)
+    st.write("\n")
+    st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Please enter option of your choice here</b></p>', unsafe_allow_html=True)
+    choice = st.number_input(" ",min_value=1,max_value=3,step=1)
+    st.write("\n")
+    st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Please upload an image in .jpg, .jpeg or .png format</b></p>', unsafe_allow_html=True)
+    uploaded_file = st.file_uploader(" ", type=["jpg", "jpeg", "png"])
+    st.write("\n")
+    if uploaded_file is not None:
+        st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Uploaded Image:</b></p>', unsafe_allow_html=True)
+        st.image(uploaded_file, width=200)
+        upload_dir = "uploads"
+        if not os.path.exists(upload_dir):
+            os.makedirs(upload_dir)
+        file_path = os.path.join(upload_dir, uploaded_file.name)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        image_path = os.path.join("uploads", uploaded_file.name)
+        image = cv2.imread(file_path)
+        textFromImage = pt.image_to_string(image)
+        textFromImage = str(textFromImage)
+        if choice==1:
+            st.markdown(f'<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Text extracted from image: <h6 style="color: black; text-align: justify; font-family: Georgia, serif;">{textFromImage}</h6></b></p>', unsafe_allow_html=True)
+            with open("tfidfHeading", 'rb') as file:
+                tfidf_model = pickle.load(file)
+            inputData = tfidf_model.transform([textFromImage])
+            with open("nbHeading", 'rb') as file:
+                loaded_model = pickle.load(file)
+            output=loaded_model.predict(inputData)
+            if output[0]==0:
+                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Satirical News</h5>', unsafe_allow_html=True)
+            elif output[0]==1:
+                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Real News</h5>', unsafe_allow_html=True)
+        elif choice==2:
+            st.markdown(f'<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Text extracted from image: <h6 style="color: black; text-align: justify; font-family: Georgia, serif;">{textFromImage}</h6></b></p>', unsafe_allow_html=True)
+            with open("tfidfText", 'rb') as file:
+                tfidf_model = pickle.load(file)
+            inputData = tfidf_model.transform([textFromImage])
+            with open("nbText", 'rb') as file:
+                loaded_model = pickle.load(file)
+            output=loaded_model.predict(inputData)
+            if output[0]==0:
+                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Satirical News</h5>', unsafe_allow_html=True)
+            elif output[0]==1:
+                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Real News</h5>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Text extracted from image: <h6 style="color: black; text-align: justify; font-family: Georgia, serif;">{textFromImage}</h6></b></p>', unsafe_allow_html=True)
+            with open("tfidfCombined", 'rb') as file:
+                tfidf_model = pickle.load(file)
+            inputData = tfidf_model.transform([textFromImage])
+            with open("knnCombined", 'rb') as file:
+                loaded_model = pickle.load(file)
+            output=loaded_model.predict(inputData)
+            if output[0]==0:
+                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Satirical News</h5>', unsafe_allow_html=True)
+            elif output[0]==1:
+                st.markdown(f'<h5 style="color: black; text-align: justify; font-family: Georgia, serif;">Result: Real News</h5>', unsafe_allow_html=True)
+PAGES = {"About Us...": page1, "Use Text": page2, "Use Image": page3}
 menu_selection = st.sidebar.selectbox('Go to', list(PAGES.keys()))
 page = PAGES[menu_selection]
 page()

@@ -291,13 +291,6 @@ def page2():
     st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>1. Heading of article</b></p>', unsafe_allow_html=True)
     st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>2. Content of article</b></p>', unsafe_allow_html=True)
     st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>3. Whole article</b></p>', unsafe_allow_html=True)
-    
-    ### image trial
-
-
-    st.image("headline img.jpg", caption="Example Image")  # Insert an image
-   ###  trial endsss......
-   
     st.write("\n\n")
     st.markdown('<p style="color: black; text-align: justify; font-family: Georgia, serif;"><b>Please enter option of your choice here</b></p>', unsafe_allow_html=True)
     choice = st.number_input(" ",min_value=1,max_value=3,step=1)
